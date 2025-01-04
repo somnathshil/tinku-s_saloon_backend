@@ -24,10 +24,14 @@
           type: String,
           required: true,
        },
-       date:{
+       serviceDate:{
         type: String,
         required: true,
-       }
+       },
+       createdAt: {
+        type: Date,
+        default: Date.now
+    }
   });
 
 

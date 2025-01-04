@@ -113,7 +113,6 @@ app.post("/signup", async (req, res) => {
 
 app.post('/login', passport.authenticate('local'), (req, res) => { 
         // res.json({ message: "Logged in successfully!", user: req.user });
-
         req.session.save((err) => {
             if (err) {
                 return res.status(500).json({ message: 'Session save error', error: err });
@@ -133,13 +132,13 @@ app.post('/logout', (req, res, next) => {
 
 app.post("/booking", isLoggedIn,  async (req, res)=>{
     try{
-    let {name, mobileNumber, address, eventName, date} = req.body;
+    let {name, mobileNumber, address, eventName, serviceDate} = req.body;
     let newOrder = new Order({
         name,
         mobileNumber,
         address,
         eventName,
-        date,
+        serviceDate,
     });
    let sucessData = await newOrder.save();
    console.log(sucessData);
@@ -168,9 +167,22 @@ await user.save();
 
 
 
-// app.get("/checking", isLoggedIn, (req, res)=>{
-//          res.send(req.user);
-// });
+app.get("/user/:id", async (req, res)=>{
+          let {id} =req.params;
+          let resData = await User.findById(id).populate('orders');
+          if(resData){
+            res.json({
+                message:"Result sent successfully!!",
+               fetchUser: resData,
+            });
+          }else{
+            res.status(400).json({
+                message:"Something error from Db",
+            });
+          }
+});
+
+
 
  app.listen(8080, (req, res)=>{
     console.log("app is listening at port 8080");
