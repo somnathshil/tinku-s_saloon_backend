@@ -1,5 +1,6 @@
   const mongoose = require('mongoose');
   const Schema = mongoose.Schema;
+  const User = require("./UserSchema.js");
 
   const orderSchema = new Schema({
        name:{
@@ -31,8 +32,22 @@
        createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+     }
   });
+
+  orderSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) {
+        await User.updateOne(
+            { _id: doc.userId },
+            { $pull: { orders: doc._id } }  // Remove order ID from the user's orders array
+        );
+    }
+});
 
 
   const Order = mongoose.model('Order', orderSchema);

@@ -131,6 +131,7 @@ app.post('/logout', (req, res, next) => {
 
 
 app.post("/booking", isLoggedIn,  async (req, res)=>{
+    const userId = req.user;
     try{
     let {name, mobileNumber, address, eventName, serviceDate} = req.body;
     let newOrder = new Order({
@@ -139,6 +140,7 @@ app.post("/booking", isLoggedIn,  async (req, res)=>{
         address,
         eventName,
         serviceDate,
+        userId,
     });
    let sucessData = await newOrder.save();
    console.log(sucessData);
@@ -180,6 +182,35 @@ app.get("/user/:id", async (req, res)=>{
                 message:"Something error from Db",
             });
           }
+});
+
+
+app.put("/booking/:id", async(req, res)=>{
+    const {id} = req.params;
+    const updatedData = req.body;
+    try{
+    const result = await Order.findByIdAndUpdate(id, { $set: updatedData }, { new: true });
+    if (!updatedData) {
+        return res.status(404).json({ message: "Booking not found!" });
+      }
+      res.json({ message: "Booking updated successfully!", updatedBookingData: result });
+    } catch (error) {
+        console.log(error);
+      res.status(500).json({ message: "Server error during update!", error: error });
+    }
+});
+
+app.delete("/booking/:id", async (req, res)=>{
+      const {id} = req.params;
+      try{
+        const result = await Order.findByIdAndDelete(id);
+        if(!result){
+            res.status(404).json({message:"Booking is not deleted due to wrong data"});
+        } 
+        res.json({message:"Booking has been deleted successfully!", result: result});
+      } catch(error){
+        res.status(500).json({message:"Server error during delete!", error: error});
+      }
 });
 
 
